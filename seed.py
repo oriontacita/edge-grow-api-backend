@@ -11,18 +11,29 @@ from app.models import User, Toddler, GenderEnum, RoleEnum, StatusEnum, Ingredie
 from app.utils import create_access_token
 
 
-print("Membuat tabel jika belum ada...")
 Base.metadata.create_all(bind=engine)
+
+def get_or_create_ingredient(db, name):
+    ing = db.query(Ingredient).filter(Ingredient.name == name).first()
+    if not ing:
+        ing = Ingredient(name=name)
+        db.add(ing)
+        db.flush()
+    return ing.id
 
 def seed_data():
     db = SessionLocal()
     try:
-        existing_user = db.query(User).filter(User.username == "admin").first()
-        if existing_user:
-            print("Data sudah ada di database. Seeder dibatalkan.")
-            return
+        # existing_user = db.query(User).filter(User.username == "admin").first()
+        # if existing_user:
+        #     print("Data sudah ada di database. Seeder dibatalkan.")
+        #     return
 
         print("Menyimpan data awal...")
+
+        desa_mappi = Village(name="Desa Mappi - Papua")
+        db.add(desa_mappi)
+        db.flush()
 
         # 1. Seed User
         user_admin = User(
@@ -30,8 +41,9 @@ def seed_data():
             username="admin",
             pin="123456", 
             gender=GenderEnum.male,
-            role=RoleEnum.admin
+            role=RoleEnum.admin,
         )
+        user_admin.village_id = desa_mappi.id
         user_cadre = User(
             full_name="Ny. Sri Rahayu",
             username="Ny. Sri Rahayu",
@@ -39,6 +51,7 @@ def seed_data():
             gender=GenderEnum.female,
             role=RoleEnum.cadre
         )
+        user_cadre.village_id = desa_mappi.id
         db.add(user_admin)
         db.add(user_cadre)
 
@@ -53,13 +66,6 @@ def seed_data():
             status=StatusEnum.normal
         )
         db.add(toddler_1)
-
-        # --- SEED DATA REKOMENDASI ---
-        desa_mappi = Village(name="Desa Mappi - Papua")
-        db.add(desa_mappi)
-        db.flush() # agar dapat ID desa
-
-        user_admin.village_id = desa_mappi.id
 
         sagu = Ingredient(name="Sagu")
         ikan = Ingredient(name="Ikan Sungai")
@@ -86,17 +92,6 @@ def seed_data():
         db.add(MenuIngredient(menu_id=menu_kolak.id, ingredient_id=ubi.id))
 
 
-        desa_mappi = Village(name="Desa Mappi - Papua")
-        db.add(desa_mappi)
-        db.flush()
-
-        user_admin = User(
-            full_name="Administrator", username="admin", pin="123456", 
-            gender=GenderEnum.male, role=RoleEnum.admin, village_id=desa_mappi.id
-        )
-        db.add(user_admin)
-        db.flush()
-
         print("Menyimpan Master Bahan Baku...")
         bahan_dict = {}
         bahan_baku_list = [
@@ -104,7 +99,7 @@ def seed_data():
             "Jeruk manis", "Bayam", "Tepung jagung", "Tempe", "Pisang kepok", "Daun kangkung", 
             "Beras", "Telur puyuh", "Wortel", "Tomat", "Pepaya", "Ikan lele", "Bawang bombay", 
             "Bawang merah", "Bawang putih", "Sawi hijau", "Nasi putih", "Jagung muda", 
-            "Labu kuning", "Telur ayam", "Pisang ambon", "Soun", "Daun salam", "Serai", 
+            "Labu kuning", "Telur ayam", "Pisang ambon", "Soun", "Daun salam", "Serai", "Jahe",
             "Daun jeruk", "Lengkuas", "Kentang", "Ikan mujair", "Kacang merah", "Bawang daun", 
             "Ubi jalar merah", "Buncis", "Tepung terigu", "Tepung roti", "Ikan Tongkol", "Tahu"
         ]
@@ -190,7 +185,7 @@ def seed_data():
                 max_age_months=resep["max_age"]
             )
             db.add(new_menu)
-            db.flush() # Dapatkan ID Menu
+            db.flush()
             
             for nama_bahan in resep["bahan"]:
                 db.add(MenuIngredient(
