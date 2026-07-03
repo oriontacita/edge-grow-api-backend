@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import jwt # <-- PERUBAHAN DI SINI (dari jose import jwt menjadi import jwt)
+import jwt 
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User

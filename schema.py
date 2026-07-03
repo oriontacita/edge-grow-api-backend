@@ -89,3 +89,38 @@ class SyncMeasurementData(BaseModel):
 class SyncPayload(BaseModel):
     toddlers: List[SyncToddlerData] = []
     measurements: List[SyncMeasurementData] = []
+
+class VillageCreate(BaseModel):
+    name: str
+
+class IngredientCreate(BaseModel):
+    name: str
+
+class MenuCreate(BaseModel):
+    name: str
+    calories: Optional[float] = None
+    cooking_method: Optional[str] = None
+    ingredient_ids: List[int]
+
+class LocalMapCreate(BaseModel):
+    village_id: int
+    ingredient_id: int
+    start_month: int = Field(..., ge=1, le=12)
+    end_month: int = Field(..., ge=1, le=12)
+
+class MenuRecommendationOut(BaseModel):
+    id: int
+    name: str
+    calories: Optional[float]
+    cooking_method: Optional[str]
+    available_ingredients: List[str]
+    class Config:
+        from_attributes = True
+
+class MenuCreate(BaseModel):
+    name: str
+    calories: Optional[float] = None
+    cooking_method: Optional[str] = None
+    min_age_months: int = 0
+    max_age_months: int = 60
+    ingredient_ids: List[int]

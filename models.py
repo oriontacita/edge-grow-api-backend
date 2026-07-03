@@ -21,14 +21,41 @@ class BreastfeedingEnum(enum.Enum):
     yes = "yes"
     no = "no"
 
+class Village(Base):
+    __tablename__ = "villages"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Ingredient(Base):
+    __tablename__ = "ingredients"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Menu(Base):
+    __tablename__ = "menus"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    calories = Column(Float, nullable=True)
+    cooking_method = Column(String(255), nullable=True)
+    recipes = relationship("MenuIngredient", back_populates="menu")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     full_name = Column(String(255), nullable=False)
     username = Column(String(255), unique=True, index=True, nullable=False)
-    pin = Column(String(255), nullable=False) # Disarankan hash di production
+    pin = Column(String(255), nullable=False)
     gender = Column(SAEnum(GenderEnum), nullable=False)
     role = Column(SAEnum(RoleEnum), default=RoleEnum.cadre)
+    village_id = Column(Integer, ForeignKey("villages.id", nullable=True))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class Toddler(Base):
     __tablename__ = "toddlers"
@@ -39,7 +66,7 @@ class Toddler(Base):
     gender = Column(SAEnum(GenderEnum), nullable=False)
     birth_weight = Column(Float, nullable=False)
     birth_length = Column(Float, nullable=False)
-    status = Column(SAEnum(StatusEnum), default=StatusEnum.normal)
+    status = Column(SAEnum(StatusEnum), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -58,3 +85,36 @@ class Measurement(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     toddler = relationship("Toddler", back_populates="measurements")
+
+class MenuIngredient(Base):
+    __tablename__ = "menu_ingredients"
+    id = Column(Integer, primary_key=True, index=True)
+    menu_id = Column(Integer, ForeignKey('menus.id'), nullable=False)
+    ingredient_id = Column(Integer, ForeignKey('ingredients.id'), nullable=False)
+    
+    menu = relationship("Menu", back_populates="recipes")
+    ingredient = relationship("Ingredient")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class LocalIngredientMap(Base):
+    __tablename__ = "local_ingredient_maps"
+    id = Column(Integer, primary_key=True, index=True)
+    village_id = Column(Integer, ForeignKey('villages.id'), nullable=False)
+    ingredient_id = Column(Integer, ForeignKey('ingredients.id'), nullable=False)
+    start_month = Column(Integer, nullable=False)
+    end_month = Column(Integer, nullable=False) 
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Menu(Base):
+    __tablename__ = "menus"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    calories = Column(Float, nullable=True)
+    cooking_method = Column(String(255), nullable=True)
+    
+    min_age_months = Column(Integer, nullable=False, default=0)
+    max_age_months = Column(Integer, nullable=False, default=59)
+    
+    recipes = relationship("MenuIngredient", back_populates="menu")
