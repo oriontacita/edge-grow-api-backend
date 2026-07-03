@@ -5,10 +5,14 @@ import jwt
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
+from dotenv import load_dotenv
+from os import getenv
 
-SECRET_KEY = "your_super_secret_key_change_in_production"
+load_dotenv()
+
+SECRET_KEY = getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 24 jam
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
 security = HTTPBearer()
 
