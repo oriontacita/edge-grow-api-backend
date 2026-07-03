@@ -35,16 +35,6 @@ class Ingredient(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-class Menu(Base):
-    __tablename__ = "menus"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)
-    calories = Column(Float, nullable=True)
-    cooking_method = Column(String(255), nullable=True)
-    recipes = relationship("MenuIngredient", back_populates="menu")
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -53,7 +43,7 @@ class User(Base):
     pin = Column(String(255), nullable=False)
     gender = Column(SAEnum(GenderEnum), nullable=False)
     role = Column(SAEnum(RoleEnum), default=RoleEnum.cadre)
-    village_id = Column(Integer, ForeignKey("villages.id", nullable=True))
+    village_id = Column(Integer, ForeignKey("villages.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -113,8 +103,9 @@ class Menu(Base):
     name = Column(String(255), nullable=False)
     calories = Column(Float, nullable=True)
     cooking_method = Column(String(255), nullable=True)
-    
-    min_age_months = Column(Integer, nullable=False, default=0)
-    max_age_months = Column(Integer, nullable=False, default=59)
-    
+    min_age_months = Column(Integer, nullable=True, default=6)
+    max_age_months = Column(Integer, nullable=True, default=59)
+
     recipes = relationship("MenuIngredient", back_populates="menu")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
