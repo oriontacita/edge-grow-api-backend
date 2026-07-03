@@ -63,6 +63,7 @@ class UserCreate(BaseModel):
     pin: str
     gender: GenderEnum
     role: RoleEnum = RoleEnum.cadre
+    village_id: int
 
 class UserUpdate(BaseModel):
     full_name: str
@@ -121,6 +122,6 @@ class MenuCreate(BaseModel):
     name: str
     calories: Optional[float] = None
     cooking_method: Optional[str] = None
-    min_age_months: int = 0
-    max_age_months: int = 60
+    min_age_months: int = 6
+    max_age_months: int = 59
     ingredient_ids: List[int]
