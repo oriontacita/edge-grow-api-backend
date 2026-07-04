@@ -122,6 +122,6 @@ class MenuCreate(BaseModel):
     name: str
     calories: Optional[float] = None
     cooking_method: Optional[str] = None
-    min_age_months: int = 6
-    max_age_months: int = 59
+    min_age_months: int
+    max_age_months: int
     ingredient_ids: List[int]
