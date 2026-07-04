@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from datetime import datetime, date
 from app.database import get_db
-from app.models import User, Toddler, Village, Ingredient, Menu, MenuIngredient, LocalIngredientMap
+from app.models import User, Toddler, Measurement, Village, Ingredient, Menu, MenuIngredient, LocalIngredientMap
 from app.schema import VillageCreate, IngredientCreate, MenuCreate, LocalMapCreate
 from app.utils import get_current_user, calculate_age_in_months
 
@@ -45,9 +45,9 @@ def create_local_map(req: LocalMapCreate, db: Session = Depends(get_db), current
     return {"success": True, "message": "Local ingredient mapped"}
 
 
-@router.get("/menus")
+@router.get("/menus/{toddler_id}")
 def get_recommended_menus(
-    toddler_id: int = Query(None, description="ID Balita untuk filter berdasarkan usia"),
+    toddler_id: int,
     target_month: int = Query(None, description="Bulan target (1-12), default bulan sekarang"),
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_user)
@@ -60,7 +60,16 @@ def get_recommended_menus(
         toddler = db.query(Toddler).filter(Toddler.id == toddler_id).first()
         if not toddler:
             raise HTTPException(status_code=404, detail={"success": False, "message": "Toddler not found", "data": None})
-        toddler_age_months = calculate_age_in_months(toddler.date_of_birth, today)
+
+        latest_measurement = db.query(Measurement).filter(Measurement.toddler_id == toddler_id).order_by(Measurement.measurement_date.desc()).first()
+        
+        print(f"current age: {latest_measurement.current_age}")
+
+        
+        if latest_measurement:
+            toddler_age_months = latest_measurement.current_age
+        else:
+            toddler_age_months = calculate_age_in_months(toddler.date_of_birth, date.today())
 
     if not current_user.village_id:
         raise HTTPException(status_code=400, detail={"success": False, "message": "Kader belum memiliki Desa.", "data": None})
@@ -101,8 +110,10 @@ def get_recommended_menus(
                 "available_ingredients": [name[0] for name in ing_names]
             })
             
+    age_text = f"{toddler_age_months} bulan" if toddler_age_months is not None else "Semua Usia (Tidak ada ID Balita)"
+    print("d:" ,toddler_age_months)
     return {
         "success": True, 
-        "message": f"Recommended menus retrieved (Desa: {current_user.village_id}, Bulan: {current_month}, Umur Balita: {toddler_age_months if toddler_age_months else 'Semua Usia'})", 
+        "message": f"Recommended menus retrieved (Desa: {current_user.village_id}, Bulan: {current_month}, Umur Balita: {age_text})", 
         "data": {"recommended_menus": recommended}
-    }
+    } 

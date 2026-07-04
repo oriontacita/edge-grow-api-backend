@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schema import SyncPayload
 from app.models import Toddler, Measurement, User
-from app.utils import get_current_user, calculate_age_in_months
+from app.utils import get_current_user
 
 router = APIRouter(prefix="/api", tags=["Synchronize"])
 
@@ -20,7 +20,7 @@ def sync_data(payload: SyncPayload, db: Session = Depends(get_db), current_user:
         for m_data in payload.measurements:
             toddler = db.query(Toddler).filter(Toddler.id == m_data.toddler_id).first()
             if toddler:
-                age = calculate_age_in_months(toddler.date_of_birth, m_data.measurement_date)
+                age = Measurement.current_age
                 new_measurement = Measurement(
                     **m_data.dict(),
                     current_age=age

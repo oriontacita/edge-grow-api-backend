@@ -46,12 +46,14 @@ class ToddlerUpdate(BaseModel):
 # Measurements
 class MeasurementCreate(BaseModel):
     measurement_date: date
+    current_age: int
     current_weight: float
     current_length: float
     breastfeeding: BreastfeedingEnum
 
 class MeasurementUpdate(BaseModel):
     measurement_date: date
+    current_age: str
     current_weight: float
     current_length: float
     breastfeeding: BreastfeedingEnum
