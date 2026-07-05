@@ -59,7 +59,7 @@ def seed_data():
         toddler_1 = Toddler(
             toddler_full_name="Ahmad Fauzi",
             biological_mother_name="Siti Aminah",
-            date_of_birth="2024-01-15",
+            date_of_birth="2026-07-4",
             gender=GenderEnum.male,
             birth_weight=3.2,
             birth_length=50.0,

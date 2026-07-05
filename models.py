@@ -67,7 +67,7 @@ class Measurement(Base):
     id = Column(Integer, primary_key=True, index=True)
     toddler_id = Column(Integer, ForeignKey('toddlers.id'), nullable=False)
     measurement_date = Column(Date, nullable=False)
-    current_age = Column(Integer, nullable=True)
+    current_age = Column(Integer, nullable=False)
     current_weight = Column(Float, nullable=False)
     current_length = Column(Float, nullable=False)
     breastfeeding = Column(SAEnum(BreastfeedingEnum), nullable=False)

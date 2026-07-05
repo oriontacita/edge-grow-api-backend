@@ -63,13 +63,7 @@ def get_recommended_menus(
 
         latest_measurement = db.query(Measurement).filter(Measurement.toddler_id == toddler_id).order_by(Measurement.measurement_date.desc()).first()
         
-        print(f"current age: {latest_measurement.current_age}")
-
-        
-        if latest_measurement:
-            toddler_age_months = latest_measurement.current_age
-        else:
-            toddler_age_months = calculate_age_in_months(toddler.date_of_birth, date.today())
+        toddler_age_months = calculate_age_in_months(toddler.date_of_birth, date.today())
 
     if not current_user.village_id:
         raise HTTPException(status_code=400, detail={"success": False, "message": "Kader belum memiliki Desa.", "data": None})
@@ -111,7 +105,6 @@ def get_recommended_menus(
             })
             
     age_text = f"{toddler_age_months} bulan" if toddler_age_months is not None else "Semua Usia (Tidak ada ID Balita)"
-    print("d:" ,toddler_age_months)
     return {
         "success": True, 
         "message": f"Recommended menus retrieved (Desa: {current_user.village_id}, Bulan: {current_month}, Umur Balita: {age_text})", 

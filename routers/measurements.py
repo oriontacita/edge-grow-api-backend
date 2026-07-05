@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schema import MeasurementCreate, MeasurementUpdate
 from app.models import Measurement, Toddler
-from app.utils import get_current_user
+from app.utils import get_current_user, calculate_age_in_months
 
 router = APIRouter(tags=["Measurements"])
 
@@ -47,11 +47,12 @@ def add_measurement(toddler_id: int, req: MeasurementCreate, db: Session = Depen
     if not toddler:
         raise HTTPException(status_code=404, detail={"success": False, "message": "Toddler not found", "data": None})
         
-    # age_in_months = calculate_age_in_months(toddler.date_of_birth, req.measurement_date)
+    age_in_months = calculate_age_in_months(toddler.date_of_birth, req.measurement_date)
     
     new_measurement = Measurement(
         toddler_id=toddler_id,
-        **req.dict(),
+        **req.model_dump(),
+        current_age=age_in_months
     )
     db.add(new_measurement)
     db.commit()
@@ -63,7 +64,7 @@ def edit_measurement(measurement_id: int, req: MeasurementUpdate, db: Session = 
     if not measurement:
         raise HTTPException(status_code=404, detail={"success": False, "message": "Measurement not found", "data": None})
         
-    for key, value in req.dict().items():
+    for key, value in req.model_dump().items():
         setattr(measurement, key, value)
         
     toddler = db.query(Toddler).filter(Toddler.id == measurement.toddler_id).first()
