@@ -125,3 +125,13 @@ class MenuCreate(BaseModel):
     min_age_months: int
     max_age_months: int
     ingredient_ids: List[int]
+
+class ManualPredictRequest(BaseModel):
+    toddler_id: int
+    gender: str
+    age: int
+    birth_weight: float
+    birth_length: float
+    body_weight: float
+    body_length: float
+    breastfeeding: str

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from datetime import datetime, date
+from datetime import date
 from app.database import get_db
-from app.models import User, Toddler, Measurement, Village, Ingredient, Menu, MenuIngredient, LocalIngredientMap
+from app.models import User, Toddler, Village, Ingredient, Menu, MenuIngredient, LocalIngredientMap, Measurement
 from app.schema import VillageCreate, IngredientCreate, MenuCreate, LocalMapCreate
 from app.utils import get_current_user, calculate_age_in_months
 
@@ -55,16 +55,7 @@ def get_recommended_menus(
     today = date.today()
     current_month = target_month if target_month else today.month
     toddler_age_months = None
-
-    if toddler_id:
-        toddler = db.query(Toddler).filter(Toddler.id == toddler_id).first()
-        if not toddler:
-            raise HTTPException(status_code=404, detail={"success": False, "message": "Toddler not found", "data": None})
-
-        latest_measurement = db.query(Measurement).filter(Measurement.toddler_id == toddler_id).order_by(Measurement.measurement_date.desc()).first()
-        
-        toddler_age_months = calculate_age_in_months(toddler.date_of_birth, date.today())
-
+    
     if not current_user.village_id:
         raise HTTPException(status_code=400, detail={"success": False, "message": "Kader belum memiliki Desa.", "data": None})
     
@@ -77,7 +68,22 @@ def get_recommended_menus(
     
     if not available_ingredient_ids:
         return {"success": True, "message": f"Tidak ada bahan lokal yang tersedia di bulan {current_month}", "data": {"recommended_menus": []}}
-    
+
+    if toddler_id:
+        toddler = db.query(Toddler).filter(Toddler.id == toddler_id).first()
+        if not toddler:
+            raise HTTPException(status_code=404, detail={"success": False, "message": "Toddler not found", "data": None})
+        
+        latest_measurement = db.query(Measurement)\
+            .filter(Measurement.toddler_id == toddler_id)\
+            .order_by(Measurement.measurement_date.desc())\
+            .first()
+        
+        if latest_measurement and latest_measurement.current_age is not None:
+            toddler_age_months = latest_measurement.current_age
+        elif toddler.date_of_birth:
+            toddler_age_months = calculate_age_in_months(toddler.date_of_birth, today)
+
     query = db.query(Menu)
     
     if toddler_age_months is not None:
@@ -105,8 +111,9 @@ def get_recommended_menus(
             })
             
     age_text = f"{toddler_age_months} bulan" if toddler_age_months is not None else "Semua Usia (Tidak ada ID Balita)"
+
     return {
         "success": True, 
         "message": f"Recommended menus retrieved (Desa: {current_user.village_id}, Bulan: {current_month}, Umur Balita: {age_text})", 
         "data": {"recommended_menus": recommended}
-    } 
+    }

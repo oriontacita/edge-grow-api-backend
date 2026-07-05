@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from app.database import engine, Base
-from app.routers import auth, dashboard, toddlers, measurements, users, settings, sync, recommendations
+from app.routers import auth, dashboard, toddlers, measurements, users, settings, sync, recommendations, ml
 
 Base.metadata.create_all(bind=engine)
 
@@ -46,6 +46,7 @@ app.include_router(users.router)
 app.include_router(settings.router)
 app.include_router(sync.router)
 app.include_router(recommendations.router)
+app.include_router(ml.router)
 
 @app.get("/")
 def root():
