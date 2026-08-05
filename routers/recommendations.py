@@ -84,6 +84,16 @@ def get_recommended_menus(
         elif toddler.date_of_birth:
             toddler_age_months = calculate_age_in_months(toddler.date_of_birth, today)
 
+        if not latest_measurement:
+        # raise HTTPException(status_code=400, detail={"success": False, "message": "Belum ada data pengukuran untuk balita ini", "data": None})
+            return {
+                "success": False, 
+                "message": "belum ada data pengukuran",
+                "data": {
+                    "recommended_menus": None
+                }
+            } 
+
     query = db.query(Menu)
     
     if toddler_age_months is not None:

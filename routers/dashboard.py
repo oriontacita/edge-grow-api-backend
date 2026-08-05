@@ -13,6 +13,7 @@ def get_dashboard(db: Session = Depends(get_db), current_user = Depends(get_curr
         "id": t.id,
         "toddler_full_name": t.toddler_full_name,
         "date_of_birth": t.date_of_birth.isoformat(),
-        "gender": t.gender.value
+        "gender": t.gender,
+        "status": t.status
     } for t in toddlers]
     return {"success": True, "message": "Dashboard data retrieved", "data": {"toddlers": data}}

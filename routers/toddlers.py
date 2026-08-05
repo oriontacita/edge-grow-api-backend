@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schema import ToddlerCreate, ToddlerUpdate, GenderEnum
-from app.models import Toddler
-from app.utils import get_current_user
+from app.models import Toddler, Measurement
+from app.utils import get_current_user, calculate_age_in_months
 
 router = APIRouter(prefix="/api/toddlers", tags=["Toddlers"])
 
@@ -13,6 +13,7 @@ def get_toddlers(gender: GenderEnum = Query(None), db: Session = Depends(get_db)
     if gender:
         query = query.filter(Toddler.gender == gender)
     toddlers = query.all()
+
     return {"success": True, "message": "Toddlers retrieved", "data": {"toddlers": toddlers}}
 
 @router.get("/view/{toddler_id}")

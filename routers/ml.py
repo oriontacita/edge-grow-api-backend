@@ -34,7 +34,16 @@ def predict_toddler_status(
         .first()
         
     if not latest_measurement:
-        raise HTTPException(status_code=400, detail={"success": False, "message": "Belum ada data pengukuran untuk balita ini", "data": None})
+        # raise HTTPException(status_code=400, detail={"success": False, "message": "Belum ada data pengukuran untuk balita ini", "data": None})
+        return {
+            "message": "belum ada data pengukuran",
+            "data": {
+                "toddler_id": toddler.id,
+                "toddler_name": toddler.toddler_full_name,
+                "old_status": None,
+                "predicted_status": None,
+            }
+        } 
 
     # 3. Hitung Usia
     age_in_months = latest_measurement.current_age
