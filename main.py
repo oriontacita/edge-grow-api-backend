@@ -9,15 +9,16 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+# setting CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*", "https://reflux-urgent-next.ngrok-free.dev"], 
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# CUSTOM MIDDLEWARE: Override format error validasi bawaan FastAPI (422) agar sesuai docs
+# CUSTOM MIDDLEWARE: Override error responses for validation and global exceptions
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
