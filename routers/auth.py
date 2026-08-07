@@ -12,7 +12,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == req.username).first()
     
     if not user or user.pin != req.pin:
-        return {"success": False, "message": "Invalid username or PIN", "data": None}
+        return {"success": False, "message": "Invalid username or PIN"}
 
     village_name = None
     

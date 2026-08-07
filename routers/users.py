@@ -10,6 +10,7 @@ router = APIRouter(prefix="/api/users", tags=["Users"])
 @router.get("/")
 def get_users(gender: GenderEnum = Query(None), db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     query = db.query(User)
+    
     if gender:
         query = query.filter(User.gender == gender)
     users = query.all()
@@ -18,13 +19,13 @@ def get_users(gender: GenderEnum = Query(None), db: Session = Depends(get_db), c
 @router.get("/view/{user_id}")
 def get_user(user_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     user = db.query(User).filter(User.id == user_id).first()
+
     if not user:
         raise HTTPException(status_code=404, detail={"success": False, "message": "User not found", "data": None})
     return {"success": True, "message": "User retrieved", "data": {"user": user}}
 
 @router.post("/add", status_code=201)
 def add_user(req: UserCreate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    # Cek conflict username
     existing_user = db.query(User).filter(User.username == req.username).first()
     if existing_user:
         return {"success": False, "message": "Username already exists", "errors": {"username": "Conflict"}}
@@ -48,6 +49,7 @@ def edit_user(user_id: int, req: UserUpdate, db: Session = Depends(get_db), curr
 @router.delete("/delete/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     user = db.query(User).filter(User.id == user_id).first()
+
     if not user:
         raise HTTPException(status_code=404, detail={"success": False, "message": "User not found", "data": None})
     db.delete(user)

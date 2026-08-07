@@ -10,6 +10,7 @@ router = APIRouter(prefix="/api/toddlers", tags=["Toddlers"])
 @router.get("/")
 def get_toddlers(gender: GenderEnum = Query(None), db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     query = db.query(Toddler)
+
     if gender:
         query = query.filter(Toddler.gender == gender)
     toddlers = query.all()
@@ -19,6 +20,7 @@ def get_toddlers(gender: GenderEnum = Query(None), db: Session = Depends(get_db)
 @router.get("/view/{toddler_id}")
 def get_toddler(toddler_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     toddler = db.query(Toddler).filter(Toddler.id == toddler_id).first()
+
     if not toddler:
         raise HTTPException(status_code=404, detail={"success": False, "message": "Toddler not found", "data": None})
     return {"success": True, "message": "Toddler retrieved", "data": {"toddler": toddler}}
@@ -33,6 +35,7 @@ def add_toddler(req: ToddlerCreate, db: Session = Depends(get_db), current_user 
 @router.put("/edit/{toddler_id}")
 def edit_toddler(toddler_id: int, req: ToddlerUpdate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     toddler = db.query(Toddler).filter(Toddler.id == toddler_id).first()
+
     if not toddler:
         raise HTTPException(status_code=404, detail={"success": False, "message": "Toddler not found", "data": None})
     
@@ -44,6 +47,7 @@ def edit_toddler(toddler_id: int, req: ToddlerUpdate, db: Session = Depends(get_
 @router.delete("/delete/{toddler_id}")
 def delete_toddler(toddler_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     toddler = db.query(Toddler).filter(Toddler.id == toddler_id).first()
+    
     if not toddler:
         raise HTTPException(status_code=404, detail={"success": False, "message": "Toddler not found", "data": None})
     db.delete(toddler)

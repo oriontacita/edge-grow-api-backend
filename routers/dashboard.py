@@ -9,6 +9,7 @@ router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 @router.get("/")
 def get_dashboard(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     toddlers = db.query(Toddler).all()
+
     data = [{
         "id": t.id,
         "toddler_full_name": t.toddler_full_name,

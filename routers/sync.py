@@ -10,13 +10,14 @@ router = APIRouter(prefix="/api", tags=["Synchronize"])
 @router.post("/syncronize", status_code=201)
 def sync_data(payload: SyncPayload, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     try:
+        # syncing toodlers
         for t_data in payload.toddlers:
             new_toddler = Toddler(**t_data.dict())
             db.add(new_toddler)
             
         db.flush()
         
-        # 2. Sync Measurements
+        # syncing measurements
         for m_data in payload.measurements:
             toddler = db.query(Toddler).filter(Toddler.id == m_data.toddler_id).first()
             if toddler:

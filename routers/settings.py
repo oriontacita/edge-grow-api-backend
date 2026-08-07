@@ -10,6 +10,7 @@ router = APIRouter(prefix="/api/settings", tags=["Settings"])
 @router.get("/{user_id}")
 def get_settings(user_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     user = db.query(User).filter(User.id == user_id).first()
+    
     if not user:
         raise HTTPException(status_code=404, detail={"success": False, "message": "User not found", "data": None})
     return {"success": True, "message": "User retrieved", "data": {"user": user}}
